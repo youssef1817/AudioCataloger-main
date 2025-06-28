@@ -1,0 +1,3 @@
+- ayyoub sura 7	is not completed, end with aya 189 (audio+index). It should be 206. search for a complete one.
+- huzify not accuret. in addition we cannot use the join method since it contains some files that in different bit rates within the same sura e.g 46 55
+- 

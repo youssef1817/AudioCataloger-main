@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Build" basedir="." default="win_exe">
+
+	<property name="build.dir"				value="build"/>
+	<property name="app.name"				value="مفهرس المحاضرات"/>
+	<property name="tools.dir"				value="E:\Support"/>
+	<property name="makensis.exe"			value="${tools.dir}\nsis\makensis.exe"/>
+	<property name="launch4j.jar"			value="${tools.dir}\launch4j\launch4j.jar"/>
+	<property name="jdk.linux"				value="openjdk-21_linux-x64_bin.tar.gz"/>
+	<property name="jdk.mac"				value="openjdk-21_macos-x64_bin.tar.gz"/>
+	<property name="jdk.win"				value="openjdk-21_windows-x64_bin.zip"/> <!-- www.bell-sw.com -->
+
+	<path id="class.path">
+		<fileset dir="${build.dir}" includes="resources/lib/*"/>
+		<fileset dir="${build.dir}" includes="resources/mods/*"/>
+	</path>
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="copy_resources_windows">
+		<copy todir="${build.dir}/resources">
+			<fileset dir="resources_X" includes="setting/**"/>
+			<fileset dir="resources_X" includes="db/**"/>
+			<fileset dir="resources_X" includes="index/**"/>
+			<fileset dir="resources_X" includes="luceneIndex/**"/>
+			<fileset dir="resources_X" includes="rootsIndex/**"/>
+			<fileset dir="resources_X" includes="audios/**"/>
+			<fileset dir="resources_X" includes="lib/**"/>
+			<fileset dir="resources" includes="bin/**"/>
+			<fileset dir="resources" includes="images/**"/>
+			<fileset dir="resources" includes="rootsTableIndex/**"/>
+			<!-- <fileset dir="resources" includes="derby.properties"/> -->
+		</copy>
+	</target>
+
+	<target name="copy_resources_*nix">
+		<copy todir="${build.dir}/resources">
+			<fileset dir="resources_X" includes="setting/**"/>
+			<fileset dir="resources_X" includes="db/**"/>
+			<fileset dir="resources_X" includes="index/**"/>
+			<fileset dir="resources_X" includes="luceneIndex/**"/>
+			<fileset dir="resources_X" includes="rootsIndex/**"/>
+			<fileset dir="resources_X" includes="audios/**"/>
+			<fileset dir="resources_X" includes="lib/**"/>
+			<fileset dir="resources" includes="bin/alert.wav"/>
+			<fileset dir="resources" includes="images/**"/>
+			<fileset dir="resources" includes="rootsTableIndex/**"/>
+			<!-- <fileset dir="resources" includes="derby.properties"/> -->
+		</copy>
+	</target>
+
+	<target name="javac_src">
+		<javac includeantruntime="false"
+			   srcdir="${build.dir}/src"
+			   destdir="${build.dir}"
+			   encoding="UTF-8"
+			   modulepath="${build.dir}/resources/mods"
+			   classpathref="class.path">
+			<exclude name="com/maknoon/CreateSQLiteDB.java"/>
+			<exclude name="com/maknoon/ConvertFormat.java"/>
+			<exclude name="com/maknoon/CreateAudioCatalogerDatabase.java"/>
+			<exclude name="com/maknoon/CreateQuranDatabase.java"/>
+			<exclude name="com/maknoon/DecryptExportedDB.java"/>
+			<exclude name="com/maknoon/MissingURLs.java"/>
+			<exclude name="com/maknoon/MSAccess.java"/>
+			<exclude name="com/maknoon/MSAccess_externalDB.java"/>
+			<exclude name="com/maknoon/OpusConverter.java"/>
+			<exclude name="com/maknoon/RM_CLeaner.java"/>
+			<exclude name="com/maknoon/Test.java"/>
+			<exclude name="com/maknoon/TestDB.java"/>
+			<exclude name="com/maknoon/TestFiles.java"/>
+			<exclude name="com/maknoon/TestSeq.java"/>
+			<exclude name="com/maknoon/TestMedia.java"/>
+			<exclude name="com/maknoon/ArabicRootIndexing.java"/>
+		</javac>
+	</target>
+
+	<target name="compile_windows">
+		<copy todir="${build.dir}">
+			<fileset dir="." includes="icon.ico,AudioCataloger.l4j.ini,audiocataloger.xml,src/**,setup.nsi,startup.bat,DBCheck.bat,DBCompact.bat,DBEmpty.bat,pom_win.xml"/>
+		</copy>
+		<antcall target="copy_resources_windows"/>
+		<exec dir="${build.dir}" executable="cmd" failonerror="true" >
+			<arg value="/c mvn -f pom_win.xml dependency:copy-dependencies -DoutputDirectory=resources/lib -Dhttps.protocols=TLSv1.2"/>
+		</exec>
+		<move todir="${build.dir}/resources/mods">
+			<fileset dir="${build.dir}/resources/lib">
+				<include name="javafx-*"/>
+			</fileset>
+		</move>
+		<delete>
+			<fileset dir="${build.dir}/resources/mods">
+				<size value="300" when="less"/> <!-- delete link files javafx-base-17.jar && javafx-controls-17.jar which causes errors in starting TODO: Recheck after some time, it should be corrected by jfx -->
+			</fileset>
+		</delete>
+		<antcall target="javac_src"/>
+	</target>
+
+	<target name="compile_linux">
+		<copy todir="${build.dir}">
+			<fileset dir="." includes="src/**,startup.sh,DBCheck.sh,DBCompact.sh,decompress.sh,DBEmpty.sh,uninstall.sh,pom_linux.xml"/>
+		</copy>
+		<antcall target="copy_resources_*nix"/>
+		<exec dir="${build.dir}" executable="cmd" failonerror="true" >
+			<arg value="/c mvn -f pom_linux.xml dependency:copy-dependencies -DoutputDirectory=resources/lib -Dhttps.protocols=TLSv1.2"/>
+		</exec>
+		<move todir="${build.dir}/resources/mods">
+			<fileset dir="${build.dir}/resources/lib">
+				<include name="javafx-*"/>
+			</fileset>
+		</move>
+		<delete>
+			<fileset dir="${build.dir}/resources/mods">
+				<include name="*-win.jar"/>
+			</fileset>
+			<fileset dir="${build.dir}/resources/mods">
+				<size value="300" when="less"/> <!-- delete link files javafx-base-17.jar && javafx-controls-17.jar which causes errors in starting TODO: Recheck after some time, it should be corrected by jfx -->
+			</fileset>
+		</delete>
+		<antcall target="javac_src"/>
+	</target>
+
+	<target name="compile_mac">
+		<copy todir="${build.dir}">
+			<fileset dir="." includes="src/**,DBCheck.sh,DBCompact.sh,DBEmpty.sh,pom_mac.xml">
+				<include name="${app.name}.app/**" />
+			</fileset>
+		</copy>
+		<antcall target="copy_resources_*nix"/>
+		<exec dir="${build.dir}" executable="cmd" failonerror="true" >
+			<arg value="/c mvn -f pom_mac.xml dependency:copy-dependencies -DoutputDirectory=resources/lib -Dhttps.protocols=TLSv1.2"/>
+		</exec>
+		<move todir="${build.dir}/resources/mods">
+			<fileset dir="${build.dir}/resources/lib">
+				<include name="javafx-*"/>
+			</fileset>
+		</move>
+		<delete>
+			<fileset dir="${build.dir}/resources/mods">
+				<include name="*-win.jar"/>
+			</fileset>
+			<fileset dir="${build.dir}/resources/mods">
+				<size value="300" when="less"/> <!-- delete link files javafx-base-17.jar && javafx-controls-17.jar which causes errors in starting TODO: Recheck after some time, it should be corrected by jfx -->
+			</fileset>
+		</delete>
+		<antcall target="javac_src"/>
+	</target>
+
+	<path id="build-classpath">
+		<fileset dir="${build.dir}/resources/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="jar">
+		<pathconvert property="manifest.classpath" pathsep=" ">
+			<path refid="build-classpath"/>
+			<mapper>
+				<chainedmapper>
+					<flattenmapper/>
+					<globmapper from="*.jar" to="resources/lib/*.jar"/>
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+		<jar destfile="${build.dir}/AudioCataloger.jar">
+			<manifest>
+				<attribute name="Main-Class" value="com.maknoon.AudioCataloger"/>
+				<attribute name="Class-Path" value=". resources/ ${manifest.classpath}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="jdk_win">
+		<unzip src="${tools.dir}/${jdk.win}" dest="${build.dir}/jdk">
+			<cutdirsmapper dirs="1" />
+		</unzip>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}/jdk">
+				<include name="jmods/**"/>
+				<include name="demo/**"/>
+				<include name="legal/**"/>
+				<include name="lib/src.zip"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="jdk_linux">
+		<!--
+		<replaceregexp file="${build.dir}/startup.sh" match="java" replace="jdk/bin/java" byline="true"/>
+		-->
+		<untar src="${tools.dir}/${jdk.linux}" dest="${build.dir}/jdk" compression="gzip">
+			<cutdirsmapper dirs="1" />
+		</untar>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}/jdk">
+				<include name="jmods/**"/>
+				<include name="demo/**"/>
+				<include name="legal/**"/>
+				<include name="lib/src.zip"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="jdk_mac">
+
+		<move file="${build.dir}/resources" tofile="${build.dir}/${app.name}.app/Contents/Java/resources"/>
+		<move file="${build.dir}/com/maknoon" tofile="${build.dir}/${app.name}.app/Contents/Java/com/maknoon"/>
+		<move file="${build.dir}/DBCompact.sh" tofile="${build.dir}/${app.name}.app/Contents/Java/DBCompact.sh"/>
+		<move file="${build.dir}/DBEmpty.sh" tofile="${build.dir}/${app.name}.app/Contents/Java/DBEmpty.sh"/>
+		<move file="${build.dir}/DBCheck.sh" tofile="${build.dir}/${app.name}.app/Contents/Java/DBCheck.sh"/>
+		<move file="${build.dir}/AudioCataloger.jar" tofile="${build.dir}/${app.name}.app/Contents/Java/AudioCataloger.jar"/>
+
+		<!-- for bell-sw jre binaries
+		<untar src="${tools.dir}/${jdk.mac}" dest="${build.dir}/${app.name}.app/Contents/PlugIns/jdk" compression="gzip">
+			<cutdirsmapper dirs="1" />
+		</untar>
+		-->
+
+		<!-- for Oracle binaries -->
+		<untar src="${tools.dir}/${jdk.mac}" dest="${build.dir}/${app.name}.app/Contents/PlugIns/jdk" compression="gzip">
+			<cutdirsmapper dirs="4" />
+		</untar>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}/${app.name}.app/Contents/PlugIns/jdk">
+				<include name="**/*"/>
+				<exclude name="**/lib/**"/>
+				<exclude name="**/include/**"/>
+				<exclude name="**/conf/**"/>
+				<exclude name="**/bin/**"/>
+			</fileset>
+			<fileset dir="${build.dir}/${app.name}.app/Contents/PlugIns/jdk">
+				<include name="lib/src.zip"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="launch4j">
+
+		<!-- for old launch4j 3.12, it is not working with jdk newer than 1.8
+		<exec dir="${build.dir}" executable="cmd" failonerror="true" >
+			<arg value="/c"/>
+			<arg value='"${java}" -Dfile.encoding=windows-1252 -jar "${launch4j.jar}" audiocataloger.xml'/>
+		</exec>
+		-->
+
+		<java dir="${build.dir}" jar="${launch4j.jar}" fork="true">
+			<jvmarg value="-Dfile.encoding=windows-1252"/>
+			<arg value="audiocataloger.xml"/>
+		</java>
+
+	</target>
+
+	<target name="nsis">
+		<exec dir="${build.dir}" executable="${makensis.exe}" failonerror="true" >
+			<arg value="setup.nsi"/>
+		</exec>
+	</target>
+
+	<target name="tar_gz">
+		<tar destfile="${build.dir}/payload.tar">
+			<tarfileset dir="${build.dir}" includes="AudioCataloger.jar,startup.sh,
+			DBCheck.sh,DBEmpty.sh,DBCompact.sh,uninstall.sh,resources/**,com/**,jdk/**"/>
+		</tar>
+		<gzip destfile="${build.dir}/payload.tar.gz" src="${build.dir}/payload.tar"/>
+		<concat destfile="${build.dir}/AudioCatalogerVMx64.sh" binary="yes">
+			<fileset file="${build.dir}/decompress.sh" />
+			<fileset file="${build.dir}/payload.tar.gz" />
+		</concat>
+	</target>
+
+	<target name="tar_gz_mac">
+		<tar destfile="${build.dir}/AudioCatalogerMacOS.tar.gz" compression="gzip">
+			<tarfileset filemode="755" dir="${build.dir}">
+				<include name="${app.name}.app/**"/>
+			</tarfileset>
+		</tar>
+	</target>
+
+	<target name="tar_gz_win">
+		<tar destfile="${build.dir}/AudioCatalogerWin64.tar.gz" compression="gzip">
+			<tarfileset filemode="755" dir="${build.dir}">
+				<include name="**"/>
+				<exclude name="src/**"/>
+				<exclude name="images.nsis/**"/>
+				<exclude name="pom_win.xml"/>
+				<exclude name="audiocataloger.xml"/>
+				<exclude name="setup.nsi"/>
+				<exclude name="icon.ico"/>
+			</tarfileset>
+		</tar>
+	</target>
+
+	<target name="win_exe" depends="clean,compile_windows,jar,jdk_win,launch4j,nsis"/>
+	<target name="win" depends="clean,compile_windows,jar,jdk_win,launch4j,tar_gz_win"/>
+	<target name="mac" depends="clean,compile_mac,jar,jdk_mac,tar_gz_mac"/>
+	<target name="linux" depends="clean,compile_linux,jar,jdk_linux,tar_gz"/>
+
+</project>

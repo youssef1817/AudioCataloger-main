@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="uk.co.caprica:vlcj" type="repository">
+    <properties maven-id="uk.co.caprica:vlcj:4.8.3" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/uk/co/caprica/vlcj/4.8.3/vlcj-4.8.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/uk/co/caprica/vlcj-natives/4.8.3/vlcj-natives-4.8.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/java/dev/jna/jna-jpms/5.14.0/jna-jpms-5.14.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/net/java/dev/jna/jna-platform-jpms/5.14.0/jna-platform-jpms-5.14.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

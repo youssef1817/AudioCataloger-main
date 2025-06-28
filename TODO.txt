@@ -1,0 +1,9 @@
+لا تنسى ذكر الله تعالى
+
+- hide tafreeg tab if empty. show when there is a value
+- for quran indexes, use ffmpeg to join the mp3 clips. it is more accurate
+http://superuser.com/questions/314239/how-to-join-merge-many-mp3-files/314245#314245
+
+- AC feqhtree search by index option. It is now only DB. check performance. maybe you can add a separate feghtree search range tree with the option of using index/db.
+
+- remove all Platform.runLater inside actions since no need for them

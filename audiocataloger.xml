@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>AudioCataloger.jar</jar>
+  <outfile>AudioCataloger.exe</outfile>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>https://www.oracle.com/ae/java/technologies/javase-downloads.html</downloadUrl>
+  <supportUrl>https://www.maknoon.com</supportUrl>
+  <stayAlive>false</stayAlive>
+  <icon>icon.ico</icon>
+  <jre>
+    <path>jdk</path>
+	<requires64Bit>true</requires64Bit>
+	<requiresJdk>true</requiresJdk>
+  </jre>
+  <versionInfo>
+    <fileVersion>4.6.0.0</fileVersion>
+    <txtFileVersion>4.6</txtFileVersion>
+    <fileDescription>ÈÑäÇãÌ ãÝåÑÓ ÇáãÍÇÖÑÇÊ</fileDescription>
+    <copyright>©2024 Maknoon Apps</copyright>
+    <productVersion>4.6.0.0</productVersion>
+    <txtProductVersion>4.6</txtProductVersion>
+    <productName>ãÝåÑÓ ÇáãÍÇÖÑÇÊ</productName>
+    <companyName>ÈÑÇãÌ ãßäæä</companyName>
+    <internalName>ãÝåÑÓ ÇáãÍÇÖÑÇÊ</internalName>
+    <originalFilename>AudioCataloger.exe</originalFilename>
+	<language>ARABIC</language>
+  </versionInfo>
+</launch4jConfig>
